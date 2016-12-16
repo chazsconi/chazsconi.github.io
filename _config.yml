@@ -1,0 +1,19 @@
+# Site settings
+title: chazsconi
+# description:
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "https://chazsconi.github.io"
+github_username:  chazsconi
+disqus:
+  shortname: chazsconi
+# google_analytics: XXXXX
+
+# Build settings
+markdown: kramdown
+theme: minima
+gems:
+  - jekyll-feed
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - vendor
