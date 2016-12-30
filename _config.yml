@@ -5,7 +5,7 @@ baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://chazsconi.github.io"
 github_username:  chazsconi
 disqus:
-  shortname: chazsconi
+  shortname: chazsconi-techblog
 # google_analytics: XXXXX
 
 # Build settings
