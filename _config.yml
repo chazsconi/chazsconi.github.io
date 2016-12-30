@@ -6,7 +6,7 @@ url: "https://chazsconi.github.io"
 github_username:  chazsconi
 disqus:
   shortname: chazsconi-techblog
-# google_analytics: XXXXX
+google_analytics: UA-89561875-1
 
 # Build settings
 markdown: kramdown
