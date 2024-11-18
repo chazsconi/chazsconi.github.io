@@ -4,8 +4,6 @@ title: chazsconi
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://chazsconi.github.io"
 github_username:  chazsconi
-disqus:
-  shortname: chazsconi-techblog
 google_analytics: UA-89561875-1
 
 # Build settings
