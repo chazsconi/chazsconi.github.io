@@ -7,6 +7,13 @@ published: true
 exclude_from_index: true
 ---
 
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        mermaid.initialize({ startOnLoad: true });
+    });
+</script>
+
 At a previous company, I worked on a Developer Experience platform to provide sandbox test environments to other engineers in the company. 
 
 During my time there I saw the sandbox platform evolve over more than a decade to support the development of hundreds of microservices, the growing number of the engineers and their 
@@ -37,7 +44,45 @@ In addition to the production environment there were two shared test environment
 
 These shared testing environments were often unstable and in an undefined state as multiple teams could be testing at the same time.
 
+![Sandbox fight]({{ site.url }}/assets/evolution-of-a-sandbox/sandbox-fight2.png){:style="border: 1px solid #ddd; width: 80%;"}
+
 For example team A would deploy a test version of their microservice while team B were testing their microservice which had unrelated changes but used the REST API of team A's microservice. Team B's microservice would then started failing due to bugs introduced by team A.
+
+A not very satisfactory solution to this was to "lock" the shared testing environments and only allow one engineer of team
+to test in each environment at time.
+
+<div class="mermaid">
+flowchart TD
+    classDef waitingState fill:#F0F4F8,stroke:#5A9BD5,stroke-width:2px,color:#2C3E50,border-radius:10px;
+    classDef testingState fill:#E6F3E6,stroke:#2E8B57,stroke-width:2px,color:#2C3E50,border-radius:10px;
+    classDef testEnv fill:#E6F2FF,stroke:#4A90E2,stroke-width:3px,color:#1A5276,border-radius:10px;
+
+    subgraph "Waiting Engineers"
+        E2([Engineer 2])
+        E3([Engineer 3])
+        E5([Engineer 5])
+        E6([Engineer 6])
+    end
+
+    TE1([Shared Test Environment 1])
+    TE2([Shared Test Environment 2])
+
+    subgraph "Testing Engineers"
+        E1([Engineer 1])
+        E4([Engineer 4])
+    end
+
+    E1 --> |Testing| TE1
+    E2 --> |Waiting| TE1
+    E3 --> |Waiting| TE1
+    E4 --> |Testing| TE2
+    E5 --> |Waiting| TE2
+    E6 --> |Waiting| TE2
+
+    class E2,E3,E5,E6 waitingState;
+    class E1,E4 testingState;
+    class TE1,TE2 testEnv;
+</div>
 
 ### The birth of sandboxes
 
