@@ -418,8 +418,7 @@ experience and achieves the company's strategic goal of moving to the cloud.
 
 ## Special Thanks
 
-This journey was a huge team effort with many contributions by many very talented engineers over many years, including [Marc Salles](https://www.linkedin.com/in/marc-salles-navarro) 
-and [Gabriel Pereira](https://www.linkedin.com/in/gabrielpedepera/).
+This journey was a huge team effort with many contributions by many very talented engineers over many years, including [Marc Salles](https://www.linkedin.com/in/marc-salles-navarro), [Gabriel Pereira](https://www.linkedin.com/in/gabrielpedepera/) and [João Santos](https://www.linkedin.com/in/jfrdsantos/).
 
 ---
 
