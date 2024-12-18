@@ -14,6 +14,8 @@ exclude_from_index: true
     });
 </script>
 
+![Children in sandpit]({{ site.url }}/assets/evolution-of-a-sandbox/children-in-sandpit.jpeg){:style="border: 1px solid #ddd; width: 100%;"}
+
 At a previous company, I worked on a Developer Experience platform to provide sandbox test environments to other engineers in the company. 
 
 During my time there I saw the sandbox platform evolve over more than a decade to support the development of hundreds of microservices, the growing number of the engineers and their 
@@ -43,8 +45,6 @@ In addition to the production environment there were two shared test environment
 ### The curse of shared test environments
 
 These shared testing environments were often unstable and in an undefined state as multiple teams could be testing at the same time.
-
-![Sandbox fight]({{ site.url }}/assets/evolution-of-a-sandbox/sandbox-fight2.png){:style="border: 1px solid #ddd; width: 80%;"}
 
 For example team A would deploy a test version of their microservice while team B were testing their microservice which had unrelated changes but used the REST API of team A's microservice. Team B's microservice would then started failing due to bugs introduced by team A.
 
@@ -88,6 +88,28 @@ flowchart TD
 
 To solve this problem the first version of sandbox environments were conceived.  These allowed each engineer to have their own test environment on their laptop.  The sandbox team created sandbox setup scripts that engineers could run using [Vagrant](https://en.wikipedia.org/wiki/Vagrant_(software)) to manage and create a sandbox on their laptops.
 
+<div class="mermaid">
+flowchart TD
+    classDef laptop fill:#E6F2FF,stroke:#4A90E2,stroke-width:3px,color:#1A5276,border-radius:10px;
+    classDef app fill:#F0F4F8,stroke:#5A9BD5,stroke-width:2px,color:#2C3E50,border-radius:10px;
+    classDef database fill:#FFF3E6,stroke:#AA8B57,stroke-width:2px,color:#2C3E50,border-radius:10px;
+    classDef engineer fill:#E6F3E6,stroke:#2E8B57,stroke-width:2px,color:#2C3E50,border-radius:10px;
+
+    E([Engineer]) --> L{Laptop}
+
+    subgraph L[Laptop]
+        direction TB
+        R1@{ shape: procs, label: "Ruby Apps 1-10"}
+        P[Perl App]
+        DB[(MySQL DB)]
+    end
+
+    class L laptop;
+    class R1 app;
+    class P app;
+    class DB database;
+    class E engineer;
+</div>
 Due to the small number of microservices (less than 10), this worked well and and was a great step forward from relying on shared environments.
 
 ## Version 2 - Virtualise everything
@@ -100,6 +122,45 @@ just to be able to run their sandbox environment.  By now the number of microser
 The sandbox team obtained budget to setup a [VSphere](https://en.wikipedia.org/wiki/VMware_vSphere) environment in the company's data center.  They then developed a sandbox management system using Ruby and MySQL that communicated with the VSphere API (in SOAP 😱) to create sandbox environments on demand.  Each sandbox would be represented by a Virtual Machine (VM) running within VSphere. 
 
 Engineers could use the UI of this sandbox management system to create up to 3 sandboxes, each with up to 4 CPUs and 32G of RAM.  For some specific use cases, engineers could request elevated permissions that would allow them to create sandboxes with 6 or 8 CPUs and more RAM.
+
+<div class="mermaid">
+flowchart TD
+    classDef laptop fill:#E6F2FF,stroke:#4A90E2,stroke-width:3px,color:#1A5276,border-radius:10px;
+    classDef app fill:#F0F4F8,stroke:#5A9BD5,stroke-width:2px,color:#2C3E50,border-radius:10px;
+    classDef database fill:#FFF3E6,stroke:#AA8B57,stroke-width:2px,color:#2C3E50,border-radius:10px;
+    classDef engineer fill:#E6F3E6,stroke:#2E8B57,stroke-width:2px,color:#2C3E50,border-radius:10px;
+    classDef management fill:#FFE6F2,stroke:#FF69B4,stroke-width:2px,color:#2C3E50,border-radius:10px;
+
+    E1([Engineer 1]) --> SMS
+    E2([Engineer 2]) --> SMS
+
+    subgraph SMS["Sandbox Management System (Ruby)"]
+        direction TB
+    end
+
+    SMS --> VM1
+    SMS --> VM2
+
+    subgraph VM1[VM1]
+        direction TB
+        R1@{ shape: procs, label: "Ruby Apps 1-10"}
+        P1[Perl App]
+        DB1[(MySQL DB)]
+    end
+
+    subgraph VM2[VM2]
+        direction TB
+        R2@{ shape: procs, label: "Ruby Apps 1-10"}
+        P2[Perl App]
+        DB2[(MySQL DB)]
+    end
+
+    class VM1,VM2 laptop;
+    class R1,R2,P1,P2 app;
+    class DB1,DB2 database;
+    class E1,E2 engineer;
+    class SMS management;
+</div>
 
 This was a great advance - RAM and CPU constraints of laptops were not longer and issue and resources could be
 optimised - when engineers no longer needed a sandbox they could stop the VM, thus freeing up the RAM and CPU.  Restarting the VM would take a few minutes, but they could start where they left off as the
@@ -156,6 +217,38 @@ Fortunately just at this time Docker started to gain traction - our idea was tha
 * No more sending us pull requests to modify sandbox scripts to handle their latest JS build tool or language framework or asking us for extra hooks in the script.
 * No more incompatible ImageMagick or Ruby versions.  The required version of everything would be inside the image.
 * No more problems in running different versions of MySQL.  We could run 10 versions if we wanted (resource permitting) with each in its own container.
+
+<div class="mermaid">
+flowchart TD
+    classDef laptop fill:#E6F2FF,stroke:#4A90E2,stroke-width:3px,color:#1A5276,border-radius:10px;
+    classDef app fill:#F0F4F8,stroke:#5A9BD5,stroke-width:2px,color:#2C3E50,border-radius:10px;
+    classDef database fill:#FFF3E6,stroke:#AA8B57,stroke-width:2px,color:#2C3E50,border-radius:10px;
+    classDef engineer fill:#E6F3E6,stroke:#2E8B57,stroke-width:2px,color:#2C3E50,border-radius:10px;
+    classDef management fill:#FFE6F2,stroke:#FF69B4,stroke-width:2px,color:#2C3E50,border-radius:10px;
+
+    E1([Engineer 1]) --> SMS
+    
+    subgraph SMS["Sandbox Management System (Ruby)"]
+        direction TB
+    end
+
+    SMS --> VM1
+
+    subgraph VM1[VM1 running Docker]
+        direction TB
+        R1@{ shape: procs, label: "Ruby Apps 1-20 Docker containers"}
+        J1@{ shape: procs, label: "Java Apps 1-10 Docker containers"}
+        P1[Perl App Docker container]
+        DB1[(MySQL Docker container)]
+    end
+
+    class VM1,VM2 laptop;
+    class R1,J1,N1,P1 app;
+    class DB database;
+    class E1 engineer;
+    class SMS management;
+</div>
+
 
 ### A simple silver bullet?
 
@@ -216,6 +309,44 @@ Furthermore the declarative approach of the existing sandbox management system h
 
 Therefore due to this VSphere coupling and problems in managing state we realised that just adapting the existing sandbox management system was not an option, so we decided to rewrite it using Elixir with
 (initially) no DB.  
+
+<div class="mermaid">
+flowchart TD
+    classDef laptop fill:#E6F2FF,stroke:#4A90E2,stroke-width:3px,color:#1A5276,border-radius:10px;
+    classDef app fill:#F0F4F8,stroke:#5A9BD5,stroke-width:2px,color:#2C3E50,border-radius:10px;
+    classDef database fill:#FFF3E6,stroke:#AA8B57,stroke-width:2px,color:#2C3E50,border-radius:10px;
+    classDef engineer fill:#E6F3E6,stroke:#2E8B57,stroke-width:2px,color:#2C3E50,border-radius:10px;
+    classDef management fill:#FFE6F2,stroke:#FF69B4,stroke-width:2px,color:#2C3E50,border-radius:10px;
+
+    E1([Engineer 1]) --> SMS
+    E2([Engineer 2]) --> SMS
+
+    subgraph SMS["Sandbox Management System (Elixir)"]
+        direction TB
+    end
+
+    SMS --> NS1
+    SMS --> NS2
+
+    subgraph NS1[K8S Namespace 1]
+        direction TB
+        R1@{ shape: procs, label: "Ruby Apps 1-100"}
+        J1@{ shape: procs, label: "Java Apps 1-100"}
+        DB1[(MySQL DB)]
+    end
+
+    subgraph NS2[K8S Namespace 2]
+        direction TB
+        R2@{ shape: procs, label: "Ruby Apps 1-10"}
+        J2@{ shape: procs, label: "Java Apps 1-100"}
+        DB2[(MySQL DB)]
+    end
+
+    class NS1,NS2 laptop;
+    class R1,R2,P1,P2 app;
+    class DB1,DB2 database;
+    class E1,E2 engineer;
+    class SMS management;</div>
 
 This took around 1 year to develop, but gave us a platform that could communicate with the K8S API asynchronously and provide many more features than the original
 sandbox management system provided such as providing a REST API for CI use cases, viewing container logs through the UI, changing the docker image of already running microservices
