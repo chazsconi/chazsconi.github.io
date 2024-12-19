@@ -4,7 +4,7 @@ title:  "The evolution of a sandbox platform"
 subtitle: A journey from Vagrant, through VMs and Docker to Kubernetes and AWS
 date:   2024-11-19 10:00:00 +0100
 published: true
-exclude_from_index: true
+exclude_from_index: false
 ---
 
 <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
